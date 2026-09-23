@@ -1,17 +1,12 @@
 import { Router } from "express";
-import { supabase } from "../config/supabase";
+import { authenticateUser, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const userId = req.headers["x-user-id"] as string;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      error: "Unauthorized",
-    });
-  }
+// Get all exercises
+router.get("/", authenticateUser, async (req: AuthRequest, res) => {
+  const userId = req.userId;
+  const supabase = req.supabase!;
 
   const { data, error } = await supabase
     .from("exercises")
@@ -20,6 +15,8 @@ router.get("/", async (req, res) => {
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("Get exercises error:", error);
+
     return res.status(500).json({
       success: false,
       error: error.message,
@@ -32,16 +29,12 @@ router.get("/", async (req, res) => {
   });
 });
 
-router.post("/", async (req, res) => {
-  const userId = req.headers["x-user-id"] as string;
-  const { name, muscle_group, equipment } = req.body;
+// Add exercise
+router.post("/", authenticateUser, async (req: AuthRequest, res) => {
+  const userId = req.userId;
+  const supabase = req.supabase!;
 
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      error: "Unauthorized",
-    });
-  }
+  const { name, muscle_group, equipment } = req.body;
 
   if (!name || !muscle_group || !equipment) {
     return res.status(400).json({
@@ -64,6 +57,8 @@ router.post("/", async (req, res) => {
     .single();
 
   if (error) {
+    console.error("Add exercise error:", error);
+
     return res.status(500).json({
       success: false,
       error: error.message,
@@ -76,16 +71,12 @@ router.post("/", async (req, res) => {
   });
 });
 
-router.delete("/:id", async (req, res) => {
-  const userId = req.headers["x-user-id"] as string;
-  const exerciseId = req.params.id;
+// Delete exercise
+router.delete("/:id", authenticateUser, async (req: AuthRequest, res) => {
+  const userId = req.userId;
+  const supabase = req.supabase!;
 
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      error: "Unauthorized",
-    });
-  }
+  const exerciseId = req.params.id;
 
   const { error } = await supabase
     .from("exercises")
@@ -94,6 +85,8 @@ router.delete("/:id", async (req, res) => {
     .eq("user_id", userId);
 
   if (error) {
+    console.error("Delete exercise error:", error);
+
     return res.status(500).json({
       success: false,
       error: error.message,
