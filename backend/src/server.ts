@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import exerciseRoutes from "./routes/exercises";
-
+import workoutRoutes from "./routes/workouts";
 dotenv.config();
 
 const app = express();
@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use("/api/exercises", exerciseRoutes);
+app.use("/api/workouts", workoutRoutes);
 
 app.get("/", (req, res) => {
   res.json({
