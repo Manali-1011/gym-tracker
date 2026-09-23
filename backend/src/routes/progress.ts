@@ -41,7 +41,7 @@ router.get("/", authenticateUser, async (req: AuthRequest, res) => {
   const progressMap: Record<string, any> = {};
 
   for (const item of data || []) {
-    const exerciseName = item.exercises.name;
+    const exerciseName = item.exercises[0].name;
 
     if (!progressMap[exerciseName]) {
       progressMap[exerciseName] = {
@@ -71,7 +71,7 @@ router.get("/", authenticateUser, async (req: AuthRequest, res) => {
       : 0;
 
     progressMap[exerciseName].sessions.push({
-      date: item.workouts.workout_date,
+      date: item.workouts[0].workout_date,
       bestWeight,
       bestReps,
       estimated1RM: Number(estimated1RM.toFixed(2)),
